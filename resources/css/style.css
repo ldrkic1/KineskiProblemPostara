@@ -19,3 +19,9 @@
     -fx-text-fill: #141a2d;
     -fx-font-weight: bold;
 }
+.nijeOdabran {
+    -fx-background-color: lightpink;
+}
+.odabran {
+    -fx-background-color: #94c194;
+}
