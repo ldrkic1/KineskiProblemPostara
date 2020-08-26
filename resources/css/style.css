@@ -1,0 +1,21 @@
+.ispravnoPolje {
+    -fx-background-color: #94c194;
+}
+
+.neispravnoPolje {
+    -fx-background-color: lightpink;
+}
+.choice-box {
+    -fx-pref-width: 100;
+    -fx-background-color: #fbfcfd;
+}
+.choice-box .label {
+    -fx-text-fill: #141a2d;
+    -fx-font-weight: bold;
+}
+.choice-box .context-menu {
+    -fx-pref-width: 100;
+    -fx-background-color: #f6f7f8;
+    -fx-text-fill: #141a2d;
+    -fx-font-weight: bold;
+}
