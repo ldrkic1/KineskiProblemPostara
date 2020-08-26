@@ -124,9 +124,18 @@ public class UnosGranaController {
         }
         return ispravno;
     }
+    private void izracunajStepeneCvorova() {
+        for(Cvor cvor: graf.getCvorovi()) {
+            int brojac = 0;
+            for(Grana grana: graf.getGrane()) {
+                if(grana.getPocetniCvor().equals(cvor)) brojac++;
+                else if(grana.getKrajnjiCvor().equals(cvor)) brojac++;
+            }
+            cvor.setStepen(brojac);
+        }
+    }
     public void pronadjiRjesenjeAction(ActionEvent actionEvent) {
         if(provjeriIspravnostUnesenihTezina() && brojacOdabranihCvorova == brojGrana*2) {
-            System.out.println("Dobro je sve");
             ObservableList<Node> grane = unosVbox.getChildren();
             for (Node grana : grane) {
                 if (grana instanceof HBox) {
@@ -156,7 +165,12 @@ public class UnosGranaController {
                     graf.getGrane().add(granaGrafa);
                 }
             }
+            izracunajStepeneCvorova();
+            /*for(Cvor cvor: graf.getCvorovi()) {
+                System.out.println("id " + cvor.getId() + " oznaka " + cvor.getOznaka() + " stepen " + cvor.getStepen());
+            }*/
         }
+
         else {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Neispravan unos");

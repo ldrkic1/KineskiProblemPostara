@@ -3,6 +3,7 @@ package sample;
 public class Cvor {
     private int id;
     private String oznaka;
+    private int stepen;
 
     public Cvor() {
     }
@@ -10,6 +11,12 @@ public class Cvor {
     public Cvor(int id, String oznaka) {
         this.id = id;
         this.oznaka = oznaka;
+    }
+
+    public Cvor(int id, String oznaka, int stepen) {
+        this.id = id;
+        this.oznaka = oznaka;
+        this.stepen = stepen;
     }
 
     public int getId() {
@@ -26,6 +33,14 @@ public class Cvor {
 
     public void setOznaka(String oznaka) {
         this.oznaka = oznaka;
+    }
+
+    public int getStepen() {
+        return stepen;
+    }
+
+    public void setStepen(int stepen) {
+        this.stepen = stepen;
     }
 
     @Override
