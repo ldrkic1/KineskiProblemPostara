@@ -134,6 +134,13 @@ public class UnosGranaController {
             cvor.setStepen(brojac);
         }
     }
+    private int dajBrojCvorovaNeparnogStepena() {
+        int brojCvorovaNeparnogStepena = 0;
+        for(Cvor cvor: graf.getCvorovi()) {
+            if(cvor.getStepen() % 2 == 1) brojCvorovaNeparnogStepena++;
+        }
+        return brojCvorovaNeparnogStepena;
+    }
     public void pronadjiRjesenjeAction(ActionEvent actionEvent) {
         if(provjeriIspravnostUnesenihTezina() && brojacOdabranihCvorova == brojGrana*2) {
             ObservableList<Node> grane = unosVbox.getChildren();
@@ -169,6 +176,8 @@ public class UnosGranaController {
             /*for(Cvor cvor: graf.getCvorovi()) {
                 System.out.println("id " + cvor.getId() + " oznaka " + cvor.getOznaka() + " stepen " + cvor.getStepen());
             }*/
+            int brojCvorovaNeparnogStepena = dajBrojCvorovaNeparnogStepena();
+            //System.out.println(brojCvorovaNeparnogStepena);
         }
 
         else {
