@@ -149,13 +149,28 @@ public class UnosGranaController {
         }
         return brojCvorovaNeparnogStepena;
     }
+    private ArrayList<Cvor> dajSusjedneCvorove(Cvor cvor) {
+        ArrayList<Cvor> susjedi = new ArrayList<>();
+        for(Grana grana: graf.getGrane()) {
+            //neusmjereni graf
+            if(grana.getKrajnjiCvor().equals(cvor)) susjedi.add(grana.getPocetniCvor());
+            else if (grana.getPocetniCvor().equals(cvor)) susjedi.add(grana.getKrajnjiCvor());
+        }
+        return susjedi;
+    }
+    private int najkraciPut(Cvor pocetni, Cvor kranji) {
+        ArrayList<Integer> duzine = new ArrayList<>();
+
+        int duzina = 0;
+
+        return duzina;
+    }
     private void algoritamEdmondsJohnson() {
         //kreiramo listu cvorova neparnog stepena
         ArrayList<Cvor> cvoroviNepranogStepena = new ArrayList<>();
         for (Cvor cvor: graf.getCvorovi()) {
             if(cvor.getStepen() % 2 == 1) cvoroviNepranogStepena.add(cvor);
         }
-        //System.out.println(cvoroviNepranogStepena.size());
         //kreiramo listu svih parova cvorova neparnog stepena
         ArrayList<Pair<Cvor, Cvor>> paroviCvorovaNeparnogStepena = new ArrayList<>();
         for(int i = 0; i < cvoroviNepranogStepena.size(); i++) {
