@@ -1,6 +1,6 @@
 package sample;
 
-public class Cvor {
+public class Cvor implements Comparable{
     private int id;
     private String oznaka;
     private int stepen;
@@ -52,5 +52,14 @@ public class Cvor {
     public boolean equals(Object obj) {
         Cvor cvor = (Cvor) obj;
         return cvor.id == id && cvor.oznaka.equals(oznaka);
+    }
+
+
+    @Override
+    public int compareTo(Object o) {
+        Cvor cvor = (Cvor) o;
+        if(Integer.parseInt(oznaka) < Integer.parseInt(cvor.oznaka)) return -1;
+        else if(Integer.parseInt(oznaka) > Integer.parseInt(cvor.oznaka)) return 1;
+        else return 0;
     }
 }

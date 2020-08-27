@@ -13,8 +13,12 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.util.Pair;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeSet;
 
 public class UnosGranaController {
     public VBox unosVbox;
@@ -61,17 +65,21 @@ public class UnosGranaController {
             pocetniChoice.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
                 @Override
                 public void changed(ObservableValue observableValue, Object oldValue, Object newValue) {
-                    pocetniChoice.getStyleClass().removeAll("nijeOdabran");
-                    pocetniChoice.getStyleClass().add("odabran");
-                    brojacOdabranihCvorova++;
+                    if(!pocetniChoice.getStyleClass().contains("odabran")) {
+                        pocetniChoice.getStyleClass().removeAll("nijeOdabran");
+                        pocetniChoice.getStyleClass().add("odabran");
+                        brojacOdabranihCvorova++;
+                    }
                 }
             });
             krajnjiChoice.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
                 @Override
                 public void changed(ObservableValue observableValue, Object oldValue, Object newValue) {
-                    krajnjiChoice.getStyleClass().removeAll("nijeOdabran");
-                    krajnjiChoice.getStyleClass().add("odabran");
-                    brojacOdabranihCvorova++;
+                    if(!krajnjiChoice.getStyleClass().contains("odabran")) {
+                        krajnjiChoice.getStyleClass().removeAll("nijeOdabran");
+                        krajnjiChoice.getStyleClass().add("odabran");
+                        brojacOdabranihCvorova++;
+                    }
                 }
             });
             Label tezinaLabel = new Label("Tezina:");
@@ -141,6 +149,22 @@ public class UnosGranaController {
         }
         return brojCvorovaNeparnogStepena;
     }
+    private void algoritamEdmondsJohnson() {
+        //kreiramo listu cvorova neparnog stepena
+        ArrayList<Cvor> cvoroviNepranogStepena = new ArrayList<>();
+        for (Cvor cvor: graf.getCvorovi()) {
+            if(cvor.getStepen() % 2 == 1) cvoroviNepranogStepena.add(cvor);
+        }
+        //System.out.println(cvoroviNepranogStepena.size());
+        //kreiramo listu svih parova cvorova neparnog stepena
+        ArrayList<Pair<Cvor, Cvor>> paroviCvorovaNeparnogStepena = new ArrayList<>();
+        for(int i = 0; i < cvoroviNepranogStepena.size(); i++) {
+            for(int j = i + 1; j < cvoroviNepranogStepena.size(); j++) {
+                paroviCvorovaNeparnogStepena.add(new Pair(cvoroviNepranogStepena.get(i), cvoroviNepranogStepena.get(j)));
+            }
+        }
+
+    }
     public void pronadjiRjesenjeAction(ActionEvent actionEvent) {
         if(provjeriIspravnostUnesenihTezina() && brojacOdabranihCvorova == brojGrana*2) {
             ObservableList<Node> grane = unosVbox.getChildren();
@@ -178,6 +202,12 @@ public class UnosGranaController {
             }*/
             int brojCvorovaNeparnogStepena = dajBrojCvorovaNeparnogStepena();
             //System.out.println(brojCvorovaNeparnogStepena);
+            if(brojCvorovaNeparnogStepena != 0) {
+                algoritamEdmondsJohnson();
+            }
+            else {
+
+            }
         }
 
         else {
