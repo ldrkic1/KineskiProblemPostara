@@ -4,12 +4,12 @@ public class Grana {
     private int id;
     private Cvor pocetniCvor;
     private Cvor krajnjiCvor;
-    private double tezinaGrane;
+    private int tezinaGrane;
 
     public Grana() {
     }
 
-    public Grana(int id, Cvor pocetniCvor, Cvor krajnjiCvor, double tezinaGrane) {
+    public Grana(int id, Cvor pocetniCvor, Cvor krajnjiCvor, int tezinaGrane) {
         this.id = id;
         this.pocetniCvor = pocetniCvor;
         this.krajnjiCvor = krajnjiCvor;
@@ -40,11 +40,11 @@ public class Grana {
         this.krajnjiCvor = krajnjiCvor;
     }
 
-    public double getTezinaGrane() {
+    public int getTezinaGrane() {
         return tezinaGrane;
     }
 
-    public void setTezinaGrane(double tezinaGrane) {
+    public void setTezinaGrane(int tezinaGrane) {
         this.tezinaGrane = tezinaGrane;
     }
 

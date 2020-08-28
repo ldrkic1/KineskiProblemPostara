@@ -1,6 +1,5 @@
 package sample;
 
-import javafx.beans.Observable;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -15,10 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 
 public class UnosGranaController {
     public VBox unosVbox;
@@ -28,6 +24,12 @@ public class UnosGranaController {
     private int brojacOdabranihCvorova=0;
     private boolean tezinaIspravna = false;
     private Graf graf;
+    private Set<Cvor> posjeceniCvorovi = new HashSet<>();
+    private Set<Cvor> neposjeceniCvorovi = new HashSet<>();
+    private Map<Cvor, Cvor> prethodnici = new HashMap<>();
+    //od pocetnog do cvora u mapi
+    private Map<Cvor, Integer> udaljenosti = new HashMap<>();
+    private Map<Pair<Cvor, Cvor>, Integer> udaljenostiIzmedjuCvorova = new HashMap<>();
     public UnosGranaController(int brojCvorova, int brojGrana) {
         this.brojCvorova = brojCvorova;
         this.brojGrana= brojGrana;
@@ -156,14 +158,189 @@ public class UnosGranaController {
             if(grana.getKrajnjiCvor().equals(cvor)) susjedi.add(grana.getPocetniCvor());
             else if (grana.getPocetniCvor().equals(cvor)) susjedi.add(grana.getKrajnjiCvor());
         }
+
         return susjedi;
     }
-    private int najkraciPut(Cvor pocetni, Cvor kranji) {
+    private boolean postojiUdaljenost(Cvor cvor) {
+        for(Map.Entry<Cvor, Integer> entry: udaljenosti.entrySet()) {
+            if(entry.getKey().getOznaka().equals(cvor.getOznaka())) return true;
+        }
+        return false;
+    }
+    private void findMinimalDistances(Cvor node) {
+        ArrayList<Cvor> susjedni = dajSusjedneNeposjeceneCvorove(node);
+       // System.out.println("Prolazimo korz susjedne neposjecene cvorove cvora " + node.getOznaka());
+        for (Cvor krajni : susjedni) {
+         //   System.out.println("susjed neposjecen od " + node.getOznaka() + " je "+ krajni.getOznaka());
+           // System.out.println("provjera da li je getShortestDistance od "+krajni.getOznaka() + " vece od getShortestDistance od "+node.getOznaka() + " + tezina grane izmedju " + node.getOznaka() + " i " + krajni.getOznaka() );
+           // System.out.println(getShortestDistance(krajni) + " > " + (getShortestDistance(node) + tezinaGrane(node, krajni)));
+            if (getShortestDistance(krajni) > getShortestDistance(node) + tezinaGrane(node, krajni)) {
+             //   System.out.println("Prvo je vece");
+               // System.out.println("provjeravamo da li vec postoji put od pocetnog do " + krajni.getOznaka());
+                if(postojiUdaljenost(krajni)) {
+                 //   System.out.println("postoji udaljenost");
+                    for(Map.Entry<Cvor, Integer> entry: udaljenosti.entrySet()) {
+                        if(entry.getKey().getOznaka().equals(krajni.getOznaka())) {
+                            if(entry.getValue() > getShortestDistance(node) + tezinaGrane(node, krajni)) {
+                   //             System.out.println("ova sto smo sad nasli je manja od one vec spasene ");
+                                entry.setValue(getShortestDistance(node) + tezinaGrane(node, krajni));
+                     //           System.out.println("nova duzina je " + entry.getValue());
+                                for(Map.Entry<Pair<Cvor, Cvor>, Integer> entry1: udaljenostiIzmedjuCvorova.entrySet()) {
+                                    if(entry1.getKey().getKey().getOznaka().equals(node.getOznaka()) && entry1.getKey().getValue().getOznaka().equals(krajni.getOznaka())) {
+                                        entry1.setValue(getShortestDistance(node) + tezinaGrane(node, krajni));
+                                    }
+                                }
+                                //prethodnici.put(krajni, node);
+                                //neposjeceniCvorovi.add(krajni);
+                            }
+                        }
+                    }
+                }
+                else {
+                 //   System.out.println("u pampi ne postoji put od pocetnog do " + krajni.getOznaka() + " pa ga dodajemo");
+                    udaljenosti.put(krajni,  (getShortestDistance(node) + tezinaGrane(node, krajni)));
+                   // System.out.println("put od " + node.getOznaka() + " do " + krajni.getOznaka() +" je " + (getShortestDistance(node) + tezinaGrane(node, krajni)));
+                    udaljenostiIzmedjuCvorova.put(new Pair<>(node, krajni), (getShortestDistance(node) + tezinaGrane(node, krajni)));
+                    prethodnici.put(krajni, node);
+                   // System.out.println("u neposjecen dodaje " + krajni.getOznaka());
+                    neposjeceniCvorovi.add(krajni);
+                }
+            }
+        }
+
+    }
+
+    private int tezinaGrane(Cvor pocetni, Cvor krajnji) {
+        for (Grana grana: graf.getGrane()) {
+            if (grana.getPocetniCvor().equals(pocetni) && grana.getKrajnjiCvor().equals(krajnji)) {
+               // System.out.print("Duzina direktne grane izmedju " + pocetni.getOznaka() + " i " + krajnji.getOznaka() + " je " + grana.getTezinaGrane());
+                return grana.getTezinaGrane();
+            }
+            //graf neusmjeren
+            if (grana.getPocetniCvor().equals(krajnji) && grana.getKrajnjiCvor().equals(pocetni)) {
+               // System.out.print("Duzina direktne grane izmedju " + pocetni.getOznaka() + " i " + krajnji.getOznaka() + " je " + grana.getTezinaGrane());
+                return grana.getTezinaGrane();
+            }
+        }
+       // System.out.println("Nema direktne grane izmedju cvorova " + pocetni.getOznaka() + " i " + krajnji.getOznaka() + " pa je tezina 0");
+        return 0;
+    }
+
+    private ArrayList<Cvor> dajSusjedneNeposjeceneCvorove(Cvor cvor) {
+        ArrayList<Cvor> susjedniCvorovi = new ArrayList<>();
+        for (Grana grana : graf.getGrane()) {
+            if (grana.getPocetniCvor().equals(cvor) && !posjecen(grana.getKrajnjiCvor())) {
+                susjedniCvorovi.add(grana.getKrajnjiCvor());
+            }
+            else if(grana.getKrajnjiCvor().equals(cvor) && !posjecen(grana.getPocetniCvor())) {
+                susjedniCvorovi.add(grana.getPocetniCvor());
+            }
+        }
+        //System.out.print("Susjedni neposjeceni cvorovi cvora " + cvor.getOznaka());
+       // for(Cvor cvor1: susjedniCvorovi) {
+         //   System.out.print( cvor1.getOznaka() + " ");
+        //}
+       // System.out.println();
+        return susjedniCvorovi;
+    }
+
+    private Cvor getMinimum(Set<Cvor> vertexes) {
+       // System.out.println("trazi onaj iz neposjecenih cija je udaljenost od pocetnog je najmanja ");
+        Cvor minimum = null;
+        for (Cvor vertex : vertexes) {
+            if (minimum == null) {
+                minimum = vertex;
+            } else {
+                if (getShortestDistance(vertex) < getShortestDistance(minimum)) {
+                    minimum = vertex;
+                }
+            }
+        }
+        //System.out.println("cvor sa minimalnom udaljenost iz neposjecenih je " + minimum.getOznaka());
+        return minimum;
+    }
+
+    private boolean posjecen(Cvor cvor) {
+        //System.out.println("Provjeri jel " + cvor.getOznaka() + " u posjecenim, a posjeceni su");
+        for(Cvor cvor1: posjeceniCvorovi) {
+          //  System.out.print(cvor1.getOznaka() + " ");
+        }
+        //System.out.println();
+        for(Cvor cvor1: posjeceniCvorovi) {
+            if(cvor1.getOznaka().equals(cvor.getOznaka())){
+          //      System.out.println("Jeste");
+                return true;
+            }
+        }
+        //System.out.println("Nije");
+        return false;
+    }
+
+    private int getShortestDistance(Cvor krajnji) {
+        //System.out.println("Daj najkracu udaljenost od zadanog pocetnog do " + krajnji.getOznaka());
+        Integer d = udaljenosti.get(krajnji);
+        if (d == null) {
+          //  System.out.println("beskonacna udaljenost");
+            return Integer.MAX_VALUE;
+        } else {
+            // System.out.println("udaljenos je " + d);
+            return d;
+        }
+    }
+
+    /*
+     * This method returns the path from the source to the selected target and
+     * NULL if no path exists
+     */
+    public LinkedList<Cvor> getPath(Cvor target) {
+        LinkedList<Cvor> path = new LinkedList<Cvor>();
+        Cvor step = target;
+        // check if a path exists
+        if (prethodnici.get(step) == null) {
+            return null;
+        }
+        path.add(step);
+        while (prethodnici.get(step) != null) {
+            step = prethodnici.get(step);
+            path.add(step);
+        }
+        // Put it into the correct order
+        Collections.reverse(path);
+        return path;
+    }
+
+    private int najkraciPutDijkstra(Cvor pocetni, Cvor kranji) {
+        neposjeceniCvorovi = new HashSet<>();
+        posjeceniCvorovi = new HashSet<>();
+        udaljenosti = new HashMap<>();
         ArrayList<Integer> duzine = new ArrayList<>();
-
-        int duzina = 0;
-
-        return duzina;
+        ArrayList<Cvor> susjedniPocetnog = dajSusjedneCvorove(pocetni);
+        //System.out.print("Susjedi zadanog pocetnog cvora    ");
+        //for(Cvor cvor: susjedniPocetnog) {
+          //  System.out.print(" " + cvor.getOznaka());
+       // }
+       // System.out.println();
+        udaljenosti.put(pocetni, 0);
+        //System.out.println("dodau u udaljenosti " + pocetni.getOznaka() + " sa value " + 0);
+        neposjeceniCvorovi.add(pocetni);
+        //System.out.println("Dodao u neposjecene " + pocetni.getOznaka());
+        while (neposjeceniCvorovi.size() > 0) {
+            Cvor cvor = getMinimum(neposjeceniCvorovi);
+          //  System.out.println("Minimum je " + cvor.getOznaka());
+            posjeceniCvorovi.add(cvor);
+           // System.out.println("U posjecene dodao " +  cvor.getOznaka());
+            neposjeceniCvorovi.remove(cvor);
+           // System.out.println("Uklpnio minimum iz neposjecenih i ide traziti minimal distance za " + cvor.getOznaka());
+            findMinimalDistances(cvor);
+        }
+        //for(Map.Entry<Cvor, Integer> entry: udaljenosti.entrySet()) {
+          //  System.out.println("pocetni " + pocetni.getOznaka() + " krajnji " + entry.getKey().getOznaka() + " duzina "+ entry.getValue());
+        //}
+        for(Map.Entry<Cvor, Integer> entry: udaljenosti.entrySet()) {
+            if(entry.getKey().getOznaka().equals(kranji.getOznaka())) return entry.getValue();
+        }
+        //ne postoji
+        return Integer.MAX_VALUE;
     }
     private void algoritamEdmondsJohnson() {
         //kreiramo listu cvorova neparnog stepena
@@ -178,7 +355,13 @@ public class UnosGranaController {
                 paroviCvorovaNeparnogStepena.add(new Pair(cvoroviNepranogStepena.get(i), cvoroviNepranogStepena.get(j)));
             }
         }
+        //pronalazimo najkrace puteve izmedju cvorova koji cine jedan par
+        for (Pair<Cvor,Cvor> par: paroviCvorovaNeparnogStepena) {
+            System.out.print("Najkraci put od " + par.getKey().getOznaka() + " do " + par.getValue().getOznaka());
+            int put = najkraciPutDijkstra(par.getKey(),par.getValue());
+            System.out.println(" duzina " + put);
 
+        }
     }
     public void pronadjiRjesenjeAction(ActionEvent actionEvent) {
         if(provjeriIspravnostUnesenihTezina() && brojacOdabranihCvorova == brojGrana*2) {
@@ -189,7 +372,7 @@ public class UnosGranaController {
                     granaGrafa.setId(graf.getGrane().size() + 1);
                     for (Node hboxChild : ((HBox) grana).getChildren()) {
                         if (hboxChild instanceof TextField) {
-                            granaGrafa.setTezinaGrane(Double.parseDouble(((TextField) hboxChild).getText()));
+                            granaGrafa.setTezinaGrane(Integer.parseInt(((TextField) hboxChild).getText()));
                         }
                         if (hboxChild instanceof ChoiceBox) {
                             int labelIndex = ((HBox) grana).getChildren().indexOf(hboxChild) - 1;
