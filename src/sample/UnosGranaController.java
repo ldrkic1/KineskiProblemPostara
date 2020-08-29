@@ -297,7 +297,7 @@ public class UnosGranaController {
         ArrayList<Grana> graneOdPocetnogDoKrajnjeg = new ArrayList<>();
         System.out.println("pocetni cvor puta " + pocetni.getOznaka() + " krajnji cvor puta " + kranji.getOznaka());
         for( int i = 0; i < cvoroviNaPutu.size() - 1; i++) {
-            Grana grana = dajGranu(cvoroviNaPutu.get(i), cvoroviNaPutu.get(i + 1));
+            Grana grana = dajGranu(pocetni.getOznaka(), kranji.getOznaka(), cvoroviNaPutu.get(i), cvoroviNaPutu.get(i + 1));
             graneOdPocetnogDoKrajnjeg.add(grana);
         }
 
@@ -318,7 +318,7 @@ public class UnosGranaController {
         if(!dodana) {
             ArrayList<Grana> listaGrana = new ArrayList<>();
             listaGrana.add(g);
-            obrnuteGraneUPutu.put(new Pair(dajCvor(g.getPocetniCvor().getOznaka()), dajCvor(g.getPocetniCvor().getOznaka())), listaGrana);
+            obrnuteGraneUPutu.put(new Pair(dajCvor(cvor1), dajCvor(cvor2)), listaGrana);
         }
         System.out.println("obrnute grane lista");
         for(Map.Entry<Pair<Cvor,Cvor>, ArrayList<Grana>> entry: obrnuteGraneUPutu.entrySet()) {
@@ -329,7 +329,7 @@ public class UnosGranaController {
             System.out.println();
         }
     }
-    private Grana dajGranu(String cvor1, String cvor2) {
+    private Grana dajGranu(String pocetniPuta, String krajnjiPuta, String cvor1, String cvor2) {
         System.out.println("pocetni " + cvor1 + " krajnji " + cvor2);
         for (Grana grana: graf.getGrane()) {
             //neusmjeren graf
@@ -338,26 +338,23 @@ public class UnosGranaController {
             }
             else if(grana.getPocetniCvor().getOznaka().equals(cvor2) && grana.getKrajnjiCvor().getOznaka().equals(cvor1)) {
                 System.out.println("dodao obrnutu granu "+cvor2+"-"+cvor1);
-                dodajObrnutuGranuZaParCvorova(cvor1, cvor2, grana);
+                dodajObrnutuGranuZaParCvorova(pocetniPuta, krajnjiPuta, grana);
                 return grana;
             }
         }
         return null;
     }
     private boolean daLiJeObrnutaGranaUPutu(Pair<Cvor,Cvor> par, Grana grana) {
-        System.out.print("provjerava da li u putu " + par.getKey().getOznaka() + " do " +par.getValue().getOznaka() + " postoji obrnuta grana " + grana.getPocetniCvor().getOznaka() +"-"+grana.getKrajnjiCvor().getOznaka());
         for(Map.Entry<Pair<Cvor,Cvor>, ArrayList<Grana>> entry: obrnuteGraneUPutu.entrySet()) {
             if(entry.getKey().getKey().getOznaka().equals(par.getKey().getOznaka()) && entry.getKey().getValue().getOznaka().equals(par.getValue().getOznaka())) {
                 for (Grana grana1 : entry.getValue()) {
 
                     if (grana.getId() == grana1.getId()) {
-                        System.out.println(" ima");
                         return true;
                     }
                 }
             }
         }
-        System.out.println(" nema");
         return false;
     }
     private void vratiGraneNaPocetnoStanje() {
