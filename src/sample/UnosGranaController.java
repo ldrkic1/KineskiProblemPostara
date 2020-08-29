@@ -320,6 +320,7 @@ public class UnosGranaController {
             listaGrana.add(g);
             obrnuteGraneUPutu.put(new Pair(dajCvor(cvor1), dajCvor(cvor2)), listaGrana);
         }
+
         System.out.println("obrnute grane lista");
         for(Map.Entry<Pair<Cvor,Cvor>, ArrayList<Grana>> entry: obrnuteGraneUPutu.entrySet()) {
             System.out.print("za cvorove " + entry.getKey().getKey().getOznaka() + " " + entry.getKey().getValue().getOznaka() + " obrnute su grane ");
