@@ -447,6 +447,16 @@ public class UnosGranaController {
         }
         return graneKojeSeDupliciraju;
     }
+    private void dupicirajGraneUGrafu(ArrayList<Pair<Cvor, Cvor>> grane) {
+        for(Pair<Cvor, Cvor> par: grane) {
+            Grana grana = new Grana();
+            grana.setId(graf.getGrane().size() + 1);
+            grana.setPocetniCvor(par.getKey());
+            grana.setKrajnjiCvor(par.getValue());
+            grana.setTezinaGrane(tezinaGrane(grana.getPocetniCvor(), grana.getKrajnjiCvor()));
+            graf.getGrane().add(grana);
+        }
+    }
     private void algoritamEdmondsJohnson() {
         //kreiramo listu cvorova neparnog stepena
         ArrayList<Cvor> cvoroviNepranogStepena = new ArrayList<>();
@@ -480,11 +490,17 @@ public class UnosGranaController {
                 }
             }
         }
-        ArrayList<Pair<Cvor, Cvor>> uparivanja = dajMogucaUparivanjaGrana(paroviCvorovaNeparnogStepena);
+        /* trazimo najbolje uparivanje */
+        ArrayList<Pair<Cvor, Cvor>> najboljeUparivanje = dajMogucaUparivanjaGrana(paroviCvorovaNeparnogStepena);
         System.out.println("Uparivanja:");
-        for(int i = 0; i < uparivanja.size(); i++) {
-            System.out.println(uparivanja.get(i).getKey().getOznaka() + " " + uparivanja.get(i).getValue().getOznaka());
+        for(int i = 0; i < najboljeUparivanje.size(); i++) {
+            System.out.println(najboljeUparivanje.get(i).getKey().getOznaka() + " " + najboljeUparivanje.get(i).getValue().getOznaka());
         }
+
+        /* dupiciranje grana */
+        dupicirajGraneUGrafu(najboljeUparivanje);
+        System.out.println("Grane u grafu:");
+        for(Grana grana: graf.getGrane()) System.out.println(grana.toString());
     }
     public void pronadjiRjesenjeAction(ActionEvent actionEvent) {
         if(provjeriIspravnostUnesenihTezina() && brojacOdabranihCvorova == brojGrana*2) {

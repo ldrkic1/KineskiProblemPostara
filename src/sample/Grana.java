@@ -61,4 +61,13 @@ public class Grana {
         Grana grana = (Grana) obj;
         return grana.id == id && grana.pocetniCvor.equals(pocetniCvor) && grana.krajnjiCvor.equals(krajnjiCvor) && grana.tezinaGrane == tezinaGrane;
     }
+
+    @Override
+    public String toString() {
+        return "Grana: " +
+                "id = " + id +
+                ", pocetniCvor = " + pocetniCvor +
+                ", krajnjiCvor = " + krajnjiCvor +
+                ", tezinaGrane = " + tezinaGrane;
+    }
 }
