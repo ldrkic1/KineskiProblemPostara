@@ -6,15 +6,22 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.Pair;
 
+import java.io.IOException;
 import java.util.*;
+
+import static javafx.scene.control.PopupControl.USE_COMPUTED_SIZE;
 
 public class UnosGranaController {
     public VBox unosVbox;
@@ -41,66 +48,57 @@ public class UnosGranaController {
         }
         cvorovi = FXCollections.observableArrayList(list);
     }
-
-    @FXML
-    public void initialize() {
-        for(int i = 0; i < brojGrana; i++) {
-            tezinaIspravna = false;
-            HBox granaHbox = new HBox();
-            granaHbox.setAlignment(Pos.CENTER);
-            granaHbox.setSpacing(5);
-            Label početniLabel = new Label("Početni čvor:");
-            Separator separator1 = new Separator();
-            separator1.setOrientation(Orientation.VERTICAL);
-            Separator separator2 = new Separator();
-            separator2.setOrientation(Orientation.VERTICAL);
-            ChoiceBox pocetniChoice = new ChoiceBox();
-            pocetniChoice.setItems(cvorovi);
-            pocetniChoice.setPrefWidth(100);
-            pocetniChoice.getStyleClass().add("nijeOdabran");
-            Label krajnjiLabel = new Label("Krajnji čvor:");
-            ChoiceBox krajnjiChoice = new ChoiceBox();
-            krajnjiChoice.setPrefWidth(100);
-            krajnjiChoice.setItems(cvorovi);
-            krajnjiChoice.getStyleClass().add("nijeOdabran");
-            pocetniChoice.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-                @Override
-                public void changed(ObservableValue observableValue, Object oldValue, Object newValue) {
-                    if(!pocetniChoice.getStyleClass().contains("odabran")) {
-                        pocetniChoice.getStyleClass().removeAll("nijeOdabran");
-                        pocetniChoice.getStyleClass().add("odabran");
-                        brojacOdabranihCvorova++;
-                    }
+    public void dodajPoljaZaUnosGrane() {
+        tezinaIspravna = false;
+        HBox granaHbox = new HBox();
+        granaHbox.setAlignment(Pos.CENTER);
+        granaHbox.setSpacing(5);
+        Label početniLabel = new Label("Početni čvor:");
+        Separator separator1 = new Separator();
+        separator1.setOrientation(Orientation.VERTICAL);
+        Separator separator2 = new Separator();
+        separator2.setOrientation(Orientation.VERTICAL);
+        ChoiceBox pocetniChoice = new ChoiceBox();
+        pocetniChoice.setItems(cvorovi);
+        pocetniChoice.setPrefWidth(100);
+        pocetniChoice.getStyleClass().add("nijeOdabran");
+        Label krajnjiLabel = new Label("Krajnji čvor:");
+        ChoiceBox krajnjiChoice = new ChoiceBox();
+        krajnjiChoice.setPrefWidth(100);
+        krajnjiChoice.setItems(cvorovi);
+        krajnjiChoice.getStyleClass().add("nijeOdabran");
+        pocetniChoice.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observableValue, Object oldValue, Object newValue) {
+                if(!pocetniChoice.getStyleClass().contains("odabran")) {
+                    pocetniChoice.getStyleClass().removeAll("nijeOdabran");
+                    pocetniChoice.getStyleClass().add("odabran");
+                    brojacOdabranihCvorova++;
                 }
-            });
-            krajnjiChoice.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-                @Override
-                public void changed(ObservableValue observableValue, Object oldValue, Object newValue) {
-                    if(!krajnjiChoice.getStyleClass().contains("odabran")) {
-                        krajnjiChoice.getStyleClass().removeAll("nijeOdabran");
-                        krajnjiChoice.getStyleClass().add("odabran");
-                        brojacOdabranihCvorova++;
-                    }
+            }
+        });
+        krajnjiChoice.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observableValue, Object oldValue, Object newValue) {
+                if(!krajnjiChoice.getStyleClass().contains("odabran")) {
+                    krajnjiChoice.getStyleClass().removeAll("nijeOdabran");
+                    krajnjiChoice.getStyleClass().add("odabran");
+                    brojacOdabranihCvorova++;
                 }
-            });
-            Label tezinaLabel = new Label("Tezina:");
-            TextField tezinaField = new TextField();
-            tezinaField.getStyleClass().add("neispravnoPolje");
-            if(tezinaField.getStyleClass().contains("neispravnoPolje")) tezinaIspravna = false;
-            tezinaField.textProperty().addListener(new ChangeListener<String>() {
-                @Override
-                public void changed(ObservableValue<? extends String> observableValue, String oldValue, String newValue) {
-                    if(Controller.isInt(newValue)) {
-                        if(Integer.parseInt(newValue) > 0) {
-                            tezinaField.getStyleClass().removeAll("neispravnoPolje");
-                            tezinaField.getStyleClass().add("ispravnoPolje");
-                            tezinaIspravna = true;
-                        }
-                        else {
-                            tezinaField.getStyleClass().removeAll("ispravnoPolje");
-                            tezinaField.getStyleClass().add("neispravnoPolje");
-                            tezinaIspravna = false;
-                        }
+            }
+        });
+        Label tezinaLabel = new Label("Tezina:");
+        TextField tezinaField = new TextField();
+        tezinaField.getStyleClass().add("neispravnoPolje");
+        if(tezinaField.getStyleClass().contains("neispravnoPolje")) tezinaIspravna = false;
+        tezinaField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observableValue, String oldValue, String newValue) {
+                if(Controller.isInt(newValue)) {
+                    if(Integer.parseInt(newValue) > 0) {
+                        tezinaField.getStyleClass().removeAll("neispravnoPolje");
+                        tezinaField.getStyleClass().add("ispravnoPolje");
+                        tezinaIspravna = true;
                     }
                     else {
                         tezinaField.getStyleClass().removeAll("ispravnoPolje");
@@ -108,9 +106,20 @@ public class UnosGranaController {
                         tezinaIspravna = false;
                     }
                 }
-            });
-            granaHbox.getChildren().addAll(početniLabel, pocetniChoice, separator1, krajnjiLabel, krajnjiChoice, separator2, tezinaLabel, tezinaField);
-            unosVbox.getChildren().add(granaHbox);
+                else {
+                    tezinaField.getStyleClass().removeAll("ispravnoPolje");
+                    tezinaField.getStyleClass().add("neispravnoPolje");
+                    tezinaIspravna = false;
+                }
+            }
+        });
+        granaHbox.getChildren().addAll(početniLabel, pocetniChoice, separator1, krajnjiLabel, krajnjiChoice, separator2, tezinaLabel, tezinaField);
+        unosVbox.getChildren().add(granaHbox);
+    }
+    @FXML
+    public void initialize() {
+        for(int i = 0; i < brojGrana; i++) {
+            dodajPoljaZaUnosGrane();
         }
     }
 
@@ -549,5 +558,21 @@ public class UnosGranaController {
             alert.setContentText("Unesite trazene podatke ispravno!");
             alert.showAndWait();
         }
+    }
+    public void pocetakAction(ActionEvent actionEvent) throws IOException {
+        Stage stage = (Stage) unosVbox.getScene().getWindow();
+        Controller ctrl = new Controller();
+        FXMLLoader loader = new  FXMLLoader(getClass().getResource("/fxml/pocetna.fxml"));
+        loader.setController(ctrl);
+        Parent root = loader.load();
+        Stage pocetna = new Stage();
+        pocetna.setTitle("Kineski problem poštara");
+        pocetna.setScene(new Scene(root, USE_COMPUTED_SIZE, USE_COMPUTED_SIZE));
+        stage.close();
+        pocetna.show();
+    }
+    public void dodajGranuAction(ActionEvent actionEvent) {
+        dodajPoljaZaUnosGrane();
+        brojGrana++;
     }
 }

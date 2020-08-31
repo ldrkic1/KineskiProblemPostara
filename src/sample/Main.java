@@ -12,11 +12,10 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        /*Controller ctrl = new Controller();
-        FXMLLoader loader = FXMLLoader.load(getClass().getResource("/fxml/pocetna.fxml"));
+        Controller ctrl = new Controller();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/pocetna.fxml"));
         loader.setController(ctrl);
-        Parent root = loader.load();*/
-        Parent root = FXMLLoader.load(getClass().getResource("/fxml/pocetna.fxml"));
+        Parent root = loader.load();
         primaryStage.setTitle("Kineski problem poštara");
         primaryStage.setScene(new Scene(root, USE_COMPUTED_SIZE, USE_COMPUTED_SIZE));
         primaryStage.show();
