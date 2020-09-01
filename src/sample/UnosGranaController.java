@@ -403,9 +403,31 @@ public class UnosGranaController {
         for(Pair<Cvor,Cvor> par: parovi) kopija.add(new Pair<>(par.getKey(), par.getValue()));
         return kopija;
     }
+    private boolean sadruiUparivanje(ArrayList<ArrayList<Pair<Cvor,Cvor>>> uparivanja, ArrayList<Pair<Cvor,Cvor>> novoUparivanje) {
+        for(ArrayList<Pair<Cvor,Cvor>> lista: uparivanja) {
+            int brojac = 0;
+            for(Pair<Cvor, Cvor> parListe: lista) {
+                for(Pair<Cvor, Cvor> par: novoUparivanje) {
+                    if(parListe.getKey().getOznaka().equals(par.getKey().getOznaka()) && parListe.getValue().getOznaka().equals(par.getValue().getOznaka())) brojac++;
+                }
+            }
+            if(brojac == novoUparivanje.size()) {
+                System.out.println("Pronadjeno isto uparivanje");
+                return true;
+            }
+        }
+        return false;
+    }
     private ArrayList<Pair<Cvor,Cvor>> dajMogucaUparivanjaGrana(ArrayList<Pair<Cvor, Cvor>> paroviCvorova) {
+        ArrayList<ArrayList<Pair<Cvor,Cvor>>> pronadjenaUparivanja = new ArrayList<>();
+        //System.out.println("parovi svorova neparnog stepena su:");
+        /*for(Pair<Cvor,Cvor> par: paroviCvorova) {
+            System.out.println(par.getKey().getOznaka() + "-" + par.getValue().getOznaka());
+        }*/
         int brojCvorovaNeparnogStepena = dajBrojCvorovaNeparnogStepena();
+        //System.out.println("Broj cvorova neparnog stepena " + brojCvorovaNeparnogStepena);
         int brojDupliciranihPuteva = brojCvorovaNeparnogStepena/2;
+        //System.out.println("Broj dupliciranih puteva " + brojDupliciranihPuteva);
         ArrayList<Pair<Cvor,Cvor>> uparivanjePutevi = new ArrayList<>();
         ArrayList<Pair<Cvor,Cvor>> pomocnaLista = new ArrayList<>();
         ArrayList<Pair<Cvor,Cvor>> parovi = dajKopiju(paroviCvorova);
@@ -413,8 +435,10 @@ public class UnosGranaController {
         for(int i = 1; i < brojCvorovaNeparnogStepena; i += 2) {
             brojMogucihUparivanja = brojMogucihUparivanja * i;
         }
+        //System.out.println("Broj mogucih uparivanja je " + brojMogucihUparivanja);
         int brojac = 0, brojacUparivanja = 0, sumaTezina = 0;
         ArrayList<Pair<Cvor, Cvor>> temp = paroviCvorova;
+        int pocetniIndex = 0;
         for(int i = 0; i < paroviCvorova.size(); i++) {
             pomocnaLista = new ArrayList<>();
             brojac = 0;
@@ -422,27 +446,69 @@ public class UnosGranaController {
             pomocnaLista.add(paroviCvorova.get(i));
             brojac++;
             ukloniIskoristeneCvorove(parovi, paroviCvorova.get(i));
-            for(int j = 0; j < parovi.size(); j++) {
+            int pocetniJ = 0;
+            for(int j = pocetniIndex; j < parovi.size(); j++) {
                 pomocnaLista.add(parovi.get(j));
                 brojac++;
                 ukloniIskoristeneCvorove(parovi, parovi.get(j));
-                if (brojac == brojDupliciranihPuteva) j = parovi.size();
+                j = -1;
+                if (brojac == brojDupliciranihPuteva) {
+                    //j = parovi.size();
+                    boolean sadrzanoUparivanje = false;
+                    if(uparivanjePutevi.size() == 0) {
+                        /* prvo uparivanje */
+                        pronadjenaUparivanja.add(dajKopiju(pomocnaLista));
+                      /*  for(Pair<Cvor,Cvor> pair: pomocnaLista) System.out.print(pair.getKey().getOznaka()+"-"+pair.getValue().getOznaka());
+                        System.out.println();*/
+                        brojacUparivanja++;
+                    }
+                    if(uparivanjePutevi.size() != 0) {
+                        sadrzanoUparivanje = sadruiUparivanje(pronadjenaUparivanja, pomocnaLista);
+                        if(!sadrzanoUparivanje)  {
+                            /* pronadjeno bolje uparivanje */
+                            pronadjenaUparivanja.add(dajKopiju(pomocnaLista));
+                           /* for(Pair<Cvor,Cvor> pair: pomocnaLista) System.out.print(pair.getKey().getOznaka()+"-"+pair.getValue().getOznaka());
+                            System.out.println();*/
+                            brojacUparivanja++;
+                            j = parovi.size();
+
+                        }
+                    }
+                    /*if(sadrzanoUparivanje) {
+                        pomocnaLista = new ArrayList<>();
+                        brojac = 0;
+                        parovi = dajKopiju(paroviCvorova);
+                        pomocnaLista.add(paroviCvorova.get(i));
+                        brojac++;
+                        ukloniIskoristeneCvorove(parovi, paroviCvorova.get(i));
+                        pocetniJ++;
+                        j = pocetniJ - 1;
+                    }*/
+                    /*else {
+                        j = parovi.size();
+                    }*/
+                }
             }
-            if(brojac == brojDupliciranihPuteva) {
-                if(uparivanjePutevi.size() == 0) {
+            if (brojac == brojDupliciranihPuteva) {
+                if (uparivanjePutevi.size() == 0) {
                     sumaTezina = dajSumuTezinaPuteva(pomocnaLista);
                     uparivanjePutevi = pomocnaLista;
-                }
-                else {
-                    if(sumaTezina > dajSumuTezinaPuteva(pomocnaLista)) {
+                } else {
+                    if (sumaTezina > dajSumuTezinaPuteva(pomocnaLista)) {
                         uparivanjePutevi = pomocnaLista;
                         sumaTezina = dajSumuTezinaPuteva(pomocnaLista);
                     }
-
                 }
             }
-            brojacUparivanja++;
-            if(brojacUparivanja == brojMogucihUparivanja) break;
+            if(brojacUparivanja == brojMogucihUparivanja){
+                break;
+            }
+            if(brojacUparivanja != brojMogucihUparivanja && i == paroviCvorova.size() - 1) {
+                /* ukoliko nisu pronadjena sva moguća uparivanja grana - vracamo se na pocetak i trazimo drugim redoslijedom */
+                i = -1;
+                pocetniIndex++;
+                if(pocetniIndex == paroviCvorova.size()) break;
+            }
         }
         ArrayList<Pair<Cvor, Cvor>> graneKojeSeDupliciraju = new ArrayList<>();
         for(Pair<Cvor,Cvor> par: uparivanjePutevi) {
