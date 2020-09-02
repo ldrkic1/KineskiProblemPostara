@@ -27,6 +27,7 @@ public class UnosGranaController {
     public VBox unosVbox;
     public Button pronadjiRjesenjeButton;
     private int brojGrana, brojCvorova;
+    private ArrayList<ArrayList<Integer>> listaSusjedstva = new ArrayList<>();
     private ObservableList<Integer> cvorovi = null;
     private int brojacOdabranihCvorova=0;
     private boolean tezinaIspravna = false;
@@ -47,6 +48,10 @@ public class UnosGranaController {
             graf.getCvorovi().add(new Cvor(graf.getCvorovi().size() + 1, String.valueOf(i)));
         }
         cvorovi = FXCollections.observableArrayList(list);
+
+        for(int i = 0; i < brojCvorova; i++) {
+            listaSusjedstva.add(new ArrayList<>());
+        }
     }
     public void dodajPoljaZaUnosGrane() {
         tezinaIspravna = false;
@@ -122,7 +127,26 @@ public class UnosGranaController {
             dodajPoljaZaUnosGrane();
         }
     }
-
+    private void DFS(int i, boolean[] posjecen) {
+        /* Oznacava trenutni cvor kao posjecen */
+        posjecen[i] = true;
+        for (int j : listaSusjedstva.get(i)) {
+            if(!posjecen[j]) DFS(j,posjecen);
+        }
+    }
+    private int dajBrojPovezanihKomponentiGrafa() {
+        int brojPovezanihKomponenti = 0;
+        /* sve cvorove oznacimo kao neposjecene */
+        boolean[] posjecen = new boolean[brojCvorova];
+        for(int i = 0; i < brojCvorova; i++) posjecen[i] = false;
+        for(int i = 0; i < brojCvorova; ++i) {
+            if(!posjecen[i]) {
+                DFS(i,posjecen);
+                brojPovezanihKomponenti++;
+            }
+        }
+        return brojPovezanihKomponenti;
+    }
     private int dajIndexCvora(String oznaka) {
         for(Cvor cvor: graf.getCvorovi()) {
             if(cvor.getOznaka().equals(oznaka)) return cvor.getId();
@@ -202,7 +226,7 @@ public class UnosGranaController {
         return susjedniCvorovi;
     }
 
-    private void findMinimalDistances(Cvor node) {
+    private void pronadjiNajkracePuteve(Cvor node) {
         ArrayList<Cvor> susjedni = dajSusjedneNeposjeceneCvorove(node);
         for (Cvor krajni : susjedni) {
             if (getShortestDistance(krajni) > getShortestDistance(node) + tezinaGrane(node, krajni)) {
@@ -299,7 +323,7 @@ public class UnosGranaController {
             Cvor cvor = getMinimum(sljedeciCvorovi);
             posjeceniCvorovi.add(cvor);
             sljedeciCvorovi.remove(cvor);
-            findMinimalDistances(cvor);
+            pronadjiNajkracePuteve(cvor);
         }
         Pair<Cvor, Cvor> pocetniKrajnjiPar = new Pair<>(pocetni, kranji);
         LinkedList<String> cvoroviNaPutu = dajNajkraciPut(kranji);
@@ -412,7 +436,6 @@ public class UnosGranaController {
                 }
             }
             if(brojac == novoUparivanje.size()) {
-                System.out.println("Pronadjeno isto uparivanje");
                 return true;
             }
         }
@@ -578,7 +601,8 @@ public class UnosGranaController {
         for(Grana grana: graf.getGrane()) System.out.println(grana.toString());
     }
     public void pronadjiRjesenjeAction(ActionEvent actionEvent) {
-        if(provjeriIspravnostUnesenihTezina() && brojacOdabranihCvorova == brojGrana*2) {
+        if (provjeriIspravnostUnesenihTezina() && brojacOdabranihCvorova == brojGrana * 2) {
+
             ObservableList<Node> grane = unosVbox.getChildren();
             for (Node grana : grane) {
                 if (grana instanceof HBox) {
@@ -606,20 +630,32 @@ public class UnosGranaController {
                         }
                     }
                     graf.getGrane().add(granaGrafa);
+                    listaSusjedstva.get(Integer.parseInt(granaGrafa.getPocetniCvor().getOznaka()) - 1).add(Integer.parseInt(granaGrafa.getKrajnjiCvor().getOznaka()) - 1);
+                    /* neusmjeren graf */
+                    listaSusjedstva.get(Integer.parseInt(granaGrafa.getKrajnjiCvor().getOznaka()) - 1).add(Integer.parseInt(granaGrafa.getPocetniCvor().getOznaka()) - 1);
                 }
             }
-            izracunajStepeneCvorova();
-            int brojCvorovaNeparnogStepena = dajBrojCvorovaNeparnogStepena();
-            if(brojCvorovaNeparnogStepena != 0) {
-                algoritamEdmondsJohnson();
-            }
-            else {
+            int brojKomponenti = dajBrojPovezanihKomponentiGrafa();
+            System.out.println("Broj komponenti = " + brojKomponenti);
+            if (brojKomponenti == 1) {
+                izracunajStepeneCvorova();
+                int brojCvorovaNeparnogStepena = dajBrojCvorovaNeparnogStepena();
+                if (brojCvorovaNeparnogStepena != 0) {
+                    algoritamEdmondsJohnson();
+                } else {
 
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Greska");
+                alert.setHeaderText(null);
+                alert.setContentText("Graf koji ste unijeli nije povezan, te nije moguće pronaći optimalno rješenje kineskog problema poštara!");
+                alert.showAndWait();
             }
         }
         else {
             Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Neispravan unos");
+            alert.setTitle("Greska");
             alert.setHeaderText(null);
             alert.setContentText("Unesite trazene podatke ispravno!");
             alert.showAndWait();
