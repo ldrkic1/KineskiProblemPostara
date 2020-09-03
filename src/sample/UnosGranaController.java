@@ -553,6 +553,7 @@ public class UnosGranaController {
             grana.setKrajnjiCvor(par.getValue());
             grana.setTezinaGrane(tezinaGrane(grana.getPocetniCvor(), grana.getKrajnjiCvor()));
             graf.getGrane().add(grana);
+            brojGrana++;
         }
     }
     private void algoritamEdmondsJohnson() {
@@ -600,6 +601,98 @@ public class UnosGranaController {
         System.out.println("Grane u grafu:");
         for(Grana grana: graf.getGrane()) System.out.println(grana.toString());
     }
+    private boolean zatvoreniPutSadrziCvor(Cvor cvor, ArrayList<Cvor> zatvoreniPut) {
+        for(Cvor c: zatvoreniPut) {
+            if(c.getOznaka().equals(cvor.getOznaka())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    private Cvor dajDrugiCvorIzNeposjecene(Cvor cvor, ArrayList<Cvor> zatvoreniPut) {
+        for(Grana grana: graf.getGrane()) {
+            if(grana.isSadrzanaUKonturi()) {
+                System.out.println("sadrzana je grana sa id = " + grana.getId());
+                continue;
+            }
+            else {
+                if(grana.getPocetniCvor().getOznaka().equals(cvor.getOznaka())) {
+                    grana.setSadrzanaUKonturi(true);
+                    return grana.getKrajnjiCvor();
+                }
+                //neusmjeren graf
+                if(grana.getKrajnjiCvor().getOznaka().equals(cvor.getOznaka())) {
+                    grana.setSadrzanaUKonturi(true);
+                    return grana.getPocetniCvor();
+                }
+            }
+        }
+        return null;
+    }
+    private Cvor dajCvorIzNeposjeceneGrane() {
+        for(Grana grana: graf.getGrane()) {
+            if(grana.isSadrzanaUKonturi()) {
+                continue;
+            }
+            else {
+                return grana.getPocetniCvor();
+            }
+        }
+        return null;
+    }
+    private int indexCvoraUKonturi(ArrayList<Cvor> cvorovi, Cvor cvor) {
+        int index = 0;
+        for(int i = 0; i < cvorovi.size(); i++) {
+            if(cvorovi.get(i).getOznaka().equals(cvor.getOznaka())) {
+                index = i;
+            }
+        }
+        return index;
+    }
+    private ArrayList<Cvor> nadjiEulerovuKonturu() {
+    /* Pronalazak Eulerove konture pomoću Hierholzerovog algoritma */
+        Cvor pocetni = graf.getCvorovi().get(0);
+        ArrayList<Cvor> cvoroviUKonturi = new ArrayList<>();
+        cvoroviUKonturi.add(pocetni);
+        int brojGranaUKonturi = 0;
+        System.out.println("U konturu dodan pocetni cvor " + pocetni.getOznaka());
+        Cvor trenutni = pocetni;
+        System.out.println("Trenutni cvor je " + trenutni.getOznaka());
+        while (brojGranaUKonturi != brojGrana) {
+            ArrayList<Cvor> zatvoreniPut = new ArrayList<>();
+            zatvoreniPut.add(trenutni);
+            System.out.println("U zatvoreni put dodao " + trenutni.getOznaka());
+            trenutni = dajDrugiCvorIzNeposjecene(trenutni, zatvoreniPut);
+            System.out.println("Trenutni je sada " + trenutni.getOznaka());
+            zatvoreniPut.add(trenutni);
+            System.out.println("U put zatvoreni dodao " + trenutni.getOznaka());
+            brojGranaUKonturi++;
+            System.out.println("Broj grana u konturi je " + brojGranaUKonturi);
+            while (!trenutni.getOznaka().equals(pocetni.getOznaka())) {
+                trenutni = dajDrugiCvorIzNeposjecene(trenutni, zatvoreniPut);
+                System.out.println("Trenutni je " + trenutni.getOznaka());
+                zatvoreniPut.add(trenutni);
+                System.out.println("dodao u put  " + trenutni.getOznaka());
+                brojGranaUKonturi++;
+            }
+            int index = indexCvoraUKonturi(cvoroviUKonturi, pocetni);
+            index++;
+            for(int i = 1; i < zatvoreniPut.size(); i++) {
+                if(index != cvoroviUKonturi.size()) cvoroviUKonturi.add(index, zatvoreniPut.get(i));
+                else cvoroviUKonturi.add(zatvoreniPut.get(i));
+                index++;
+            }
+            System.out.println("Kontura trenutno ");
+            for(int i = 0; i < cvoroviUKonturi.size(); i++) {
+               System.out.print(cvoroviUKonturi.get(i).getOznaka()+ " ");
+            }
+            System.out.println();
+            pocetni = dajCvorIzNeposjeceneGrane();
+            trenutni = pocetni;
+
+        }
+        return cvoroviUKonturi;
+    }
     public void pronadjiRjesenjeAction(ActionEvent actionEvent) {
         if (provjeriIspravnostUnesenihTezina() && brojacOdabranihCvorova == brojGrana * 2) {
 
@@ -642,9 +735,19 @@ public class UnosGranaController {
                 int brojCvorovaNeparnogStepena = dajBrojCvorovaNeparnogStepena();
                 if (brojCvorovaNeparnogStepena != 0) {
                     algoritamEdmondsJohnson();
-                } else {
-
                 }
+                /*else {
+
+                }*/
+                /* Eulerova kontura */
+                ArrayList<Cvor> postarovPut = nadjiEulerovuKonturu();
+                /* Ispis puta */
+                System.out.println("Optimalna poštarova ruta je: ");
+                for(int i = 0; i < postarovPut.size(); i++) {
+                    if( i == postarovPut.size() - 1) System.out.print(postarovPut.get(i).getOznaka());
+                    else System.out.print(postarovPut.get(i).getOznaka()+ "-");
+                }
+
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Greska");

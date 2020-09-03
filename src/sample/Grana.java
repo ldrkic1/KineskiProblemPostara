@@ -6,6 +6,7 @@ public class Grana {
     private Cvor krajnjiCvor;
     private int tezinaGrane;
     private boolean suprotanSmjer=false;
+    private boolean sadrzanaUKonturi = false;
     public Grana() {
     }
 
@@ -54,6 +55,14 @@ public class Grana {
 
     public void setsuprotSmjeru(boolean uSuprotnomSmjeru) {
         this.suprotanSmjer = uSuprotnomSmjeru;
+    }
+
+    public boolean isSadrzanaUKonturi() {
+        return sadrzanaUKonturi;
+    }
+
+    public void setSadrzanaUKonturi(boolean sadrzanaUKonturi) {
+        this.sadrzanaUKonturi = sadrzanaUKonturi;
     }
 
     @Override
