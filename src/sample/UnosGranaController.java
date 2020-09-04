@@ -13,19 +13,20 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Pair;
-
 import java.io.IOException;
 import java.util.*;
-
 import static javafx.scene.control.PopupControl.USE_COMPUTED_SIZE;
-
 public class UnosGranaController {
     public VBox unosVbox;
     public Button pronadjiRjesenjeButton;
+    public ImageView slika;
     private int brojGrana, brojCvorova;
     private ArrayList<ArrayList<Integer>> listaSusjedstva = new ArrayList<>();
     private ObservableList<Integer> cvorovi = null;
@@ -54,11 +55,16 @@ public class UnosGranaController {
         }
     }
     public void dodajPoljaZaUnosGrane() {
+        Image slikaPostar = new Image("/images/razmislja.png");
+        slika.setImage(slikaPostar);
+        slika.setFitHeight(377);
+        slika.setFitWidth(289);
         tezinaIspravna = false;
         HBox granaHbox = new HBox();
         granaHbox.setAlignment(Pos.CENTER);
         granaHbox.setSpacing(5);
-        Label početniLabel = new Label("Početni čvor:");
+        Label pocetniLabel = new Label("Početni čvor:");
+        pocetniLabel.setFont(new Font(16));
         Separator separator1 = new Separator();
         separator1.setOrientation(Orientation.VERTICAL);
         Separator separator2 = new Separator();
@@ -68,6 +74,7 @@ public class UnosGranaController {
         pocetniChoice.setPrefWidth(100);
         pocetniChoice.getStyleClass().add("nijeOdabran");
         Label krajnjiLabel = new Label("Krajnji čvor:");
+        krajnjiLabel.setFont(new Font(16));
         ChoiceBox krajnjiChoice = new ChoiceBox();
         krajnjiChoice.setPrefWidth(100);
         krajnjiChoice.setItems(cvorovi);
@@ -92,7 +99,8 @@ public class UnosGranaController {
                 }
             }
         });
-        Label tezinaLabel = new Label("Tezina:");
+        Label tezinaLabel = new Label("Težina grane:");
+        tezinaLabel.setFont(new Font(16));
         TextField tezinaField = new TextField();
         tezinaField.getStyleClass().add("neispravnoPolje");
         if(tezinaField.getStyleClass().contains("neispravnoPolje")) tezinaIspravna = false;
@@ -118,7 +126,7 @@ public class UnosGranaController {
                 }
             }
         });
-        granaHbox.getChildren().addAll(početniLabel, pocetniChoice, separator1, krajnjiLabel, krajnjiChoice, separator2, tezinaLabel, tezinaField);
+        granaHbox.getChildren().addAll(pocetniLabel, pocetniChoice, separator1, krajnjiLabel, krajnjiChoice, separator2, tezinaLabel, tezinaField);
         unosVbox.getChildren().add(granaHbox);
     }
     @FXML
@@ -601,18 +609,9 @@ public class UnosGranaController {
         System.out.println("Grane u grafu:");
         for(Grana grana: graf.getGrane()) System.out.println(grana.toString());
     }
-    private boolean zatvoreniPutSadrziCvor(Cvor cvor, ArrayList<Cvor> zatvoreniPut) {
-        for(Cvor c: zatvoreniPut) {
-            if(c.getOznaka().equals(cvor.getOznaka())) {
-                return true;
-            }
-        }
-        return false;
-    }
     private Cvor dajDrugiCvorIzNeposjecene(Cvor cvor, ArrayList<Cvor> zatvoreniPut) {
         for(Grana grana: graf.getGrane()) {
             if(grana.isSadrzanaUKonturi()) {
-                System.out.println("sadrzana je grana sa id = " + grana.getId());
                 continue;
             }
             else {
@@ -655,24 +654,16 @@ public class UnosGranaController {
         ArrayList<Cvor> cvoroviUKonturi = new ArrayList<>();
         cvoroviUKonturi.add(pocetni);
         int brojGranaUKonturi = 0;
-        System.out.println("U konturu dodan pocetni cvor " + pocetni.getOznaka());
         Cvor trenutni = pocetni;
-        System.out.println("Trenutni cvor je " + trenutni.getOznaka());
         while (brojGranaUKonturi != brojGrana) {
             ArrayList<Cvor> zatvoreniPut = new ArrayList<>();
             zatvoreniPut.add(trenutni);
-            System.out.println("U zatvoreni put dodao " + trenutni.getOznaka());
             trenutni = dajDrugiCvorIzNeposjecene(trenutni, zatvoreniPut);
-            System.out.println("Trenutni je sada " + trenutni.getOznaka());
             zatvoreniPut.add(trenutni);
-            System.out.println("U put zatvoreni dodao " + trenutni.getOznaka());
             brojGranaUKonturi++;
-            System.out.println("Broj grana u konturi je " + brojGranaUKonturi);
             while (!trenutni.getOznaka().equals(pocetni.getOznaka())) {
                 trenutni = dajDrugiCvorIzNeposjecene(trenutni, zatvoreniPut);
-                System.out.println("Trenutni je " + trenutni.getOznaka());
                 zatvoreniPut.add(trenutni);
-                System.out.println("dodao u put  " + trenutni.getOznaka());
                 brojGranaUKonturi++;
             }
             int index = indexCvoraUKonturi(cvoroviUKonturi, pocetni);
@@ -682,18 +673,13 @@ public class UnosGranaController {
                 else cvoroviUKonturi.add(zatvoreniPut.get(i));
                 index++;
             }
-            System.out.println("Kontura trenutno ");
-            for(int i = 0; i < cvoroviUKonturi.size(); i++) {
-               System.out.print(cvoroviUKonturi.get(i).getOznaka()+ " ");
-            }
-            System.out.println();
             pocetni = dajCvorIzNeposjeceneGrane();
             trenutni = pocetni;
 
         }
         return cvoroviUKonturi;
     }
-    public void pronadjiRjesenjeAction(ActionEvent actionEvent) {
+    public void pronadjiRjesenjeAction(ActionEvent actionEvent) throws IOException {
         if (provjeriIspravnostUnesenihTezina() && brojacOdabranihCvorova == brojGrana * 2) {
 
             ObservableList<Node> grane = unosVbox.getChildren();
@@ -747,7 +733,16 @@ public class UnosGranaController {
                     if( i == postarovPut.size() - 1) System.out.print(postarovPut.get(i).getOznaka());
                     else System.out.print(postarovPut.get(i).getOznaka()+ "-");
                 }
-
+                Stage trenutniStage = (Stage) unosVbox.getScene().getWindow();
+                Stage rjesenjeStage = new Stage();
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/rjesenje.fxml"));
+                RjesenjeContoller rjesenjeContoller = new RjesenjeContoller(postarovPut);
+                loader.setController(rjesenjeContoller);
+                Parent root = loader.load();
+                rjesenjeStage.setScene(new Scene(root, USE_COMPUTED_SIZE, USE_COMPUTED_SIZE));
+                rjesenjeStage.setTitle("Rješenje kineskog problema poštara");
+                trenutniStage.close();
+                rjesenjeStage.show();
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Greska");
