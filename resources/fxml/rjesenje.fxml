@@ -20,20 +20,17 @@
    <padding>
       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
    </padding>
-   <right>
-      <ImageView fx:id="slika" fitHeight="280.0" fitWidth="195.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
-   </right>
-   <left>
-      <ScrollPane prefHeight="386.0" prefWidth="524.0" style="-fx-background-color: linear-gradient(#cde1ef, #b4c5ef);" BorderPane.alignment="CENTER">
+   <top>
+      <ScrollPane prefHeight="117.0" prefWidth="708.0" style="-fx-background-color: linear-gradient(#cde1ef, #b4c5ef);" BorderPane.alignment="CENTER">
          <content>
-            <VBox prefHeight="354.0" prefWidth="525.0" stylesheets="@../css/style.css">
+            <VBox prefHeight="109.0" prefWidth="707.0" stylesheets="@../css/style.css">
                <children>
-                  <Label fx:id="opisLabel" prefHeight="46.0" prefWidth="600.0" style="-fx-background-color: #f1f6f8; -fx-text-fill: #324b65; -fx-font-weight: bold;" stylesheets="@../css/style.css" text="Optimalna poštarova tura:">
+                  <Label fx:id="opisLabel" prefHeight="37.0" prefWidth="686.0" style="-fx-background-color: #f1f6f8; -fx-text-fill: #324b65; -fx-font-weight: bold;" stylesheets="@../css/style.css" text="Optimalna poštarova tura:">
                      <font>
                         <Font size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="rjesenjeLabel" prefHeight="282.0" prefWidth="510.0" style="-fx-background-color: #f1f6f8; -fx-text-fill: #324b65; -fx-font-weight: bold;" stylesheets="@../css/style.css" textAlignment="CENTER">
+                  <Label fx:id="rjesenjeLabel" prefHeight="72.0" prefWidth="685.0" style="-fx-background-color: #f1f6f8; -fx-text-fill: #324b65; -fx-font-weight: bold;" stylesheets="@../css/style.css" textAlignment="CENTER">
                      <font>
                         <Font size="18.0" />
                      </font>
@@ -45,8 +42,11 @@
             </VBox>
          </content>
          <BorderPane.margin>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
          </BorderPane.margin>
       </ScrollPane>
-   </left>
+   </top>
+   <center>
+      <ImageView fx:id="slika" fitHeight="280.0" fitWidth="195.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
+   </center>
 </BorderPane>
