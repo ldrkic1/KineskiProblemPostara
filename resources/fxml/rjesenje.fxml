@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane prefHeight="445.0" prefWidth="748.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane prefHeight="445.0" prefWidth="748.0" styleClass="pozadina" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
    <bottom>
       <HBox prefHeight="62.0" prefWidth="580.0" BorderPane.alignment="CENTER">
          <children>
@@ -24,16 +24,16 @@
       <ImageView fx:id="slika" fitHeight="280.0" fitWidth="195.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
    </right>
    <left>
-      <ScrollPane prefHeight="386.0" prefWidth="524.0" BorderPane.alignment="CENTER">
+      <ScrollPane prefHeight="386.0" prefWidth="524.0" style="-fx-background-color: linear-gradient(#cde1ef, #b4c5ef);" BorderPane.alignment="CENTER">
          <content>
-            <VBox prefHeight="354.0" prefWidth="525.0">
+            <VBox prefHeight="354.0" prefWidth="525.0" stylesheets="@../css/style.css">
                <children>
-                  <Label fx:id="opisLabel" prefHeight="46.0" prefWidth="600.0" text="Optimalna poštarova tura:">
+                  <Label fx:id="opisLabel" prefHeight="46.0" prefWidth="600.0" style="-fx-background-color: #f1f6f8; -fx-text-fill: #324b65; -fx-font-weight: bold;" stylesheets="@../css/style.css" text="Optimalna poštarova tura:">
                      <font>
                         <Font size="18.0" />
                      </font>
                   </Label>
-                  <Label fx:id="rjesenjeLabel" prefHeight="272.0" prefWidth="510.0" textAlignment="CENTER">
+                  <Label fx:id="rjesenjeLabel" prefHeight="282.0" prefWidth="510.0" style="-fx-background-color: #f1f6f8; -fx-text-fill: #324b65; -fx-font-weight: bold;" stylesheets="@../css/style.css" textAlignment="CENTER">
                      <font>
                         <Font size="18.0" />
                      </font>

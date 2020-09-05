@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane styleClass="pozadina" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
    <right>
       <BorderPane prefHeight="557.0" prefWidth="781.0" BorderPane.alignment="CENTER">
          <stylesheets>
@@ -19,7 +19,7 @@
          <center>
             <ScrollPane prefHeight="433.0" prefWidth="761.0">
                <content>
-                  <VBox fx:id="unosVbox" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="451.0" prefWidth="758.0" spacing="10.0">
+                  <VBox fx:id="unosVbox" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="536.0" prefWidth="758.0" spacing="10.0" style="-fx-background-color: #f1f6f8;" stylesheets="@../css/style.css">
                      <padding>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                      </padding>
@@ -56,7 +56,7 @@
             <Button fx:id="pocetakButton" mnemonicParsing="false" onAction="#pocetakAction" prefHeight="51.0" prefWidth="184.0" text="Vrati se na početak" />
             <HBox alignment="CENTER_RIGHT" prefHeight="51.0" prefWidth="887.0">
                <children>
-                  <Button fx:id="pronadjiRjesenjeButton" mnemonicParsing="false" onAction="#pronadjiRjesenjeAction" prefHeight="51.0" prefWidth="188.0" text="Pronađi optimalno rješenje" />
+                  <Button fx:id="pronadjiRjesenjeButton" mnemonicParsing="false" onAction="#pronadjiRjesenjeAction" prefHeight="51.0" prefWidth="221.0" text="Pronađi optimalno rješenje" />
                </children>
             </HBox>
          </children>

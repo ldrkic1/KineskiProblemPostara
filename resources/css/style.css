@@ -25,3 +25,28 @@
 .odabran {
     -fx-background-color: #94c194;
 }
+.button {
+    -fx-background-color: linear-gradient(#acc2d7, #b3bee8);
+    -fx-background-insets: 0,1,2,0;
+    -fx-text-fill: #141a2d;
+    -fx-font-family: "Arial";
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+.button:hover {
+    -fx-background-color: linear-gradient(#6191b1, #96aee8);
+    -fx-text-fill: #141a2d;
+
+}
+.text-field, .text-area {
+    -fx-border-width: 2;
+    -fx-border-color: #6191b1;
+    -fx-border-radius: 2;
+}
+.pozadina {
+    -fx-background-color: #f1f6f8;
+}
+.label  {
+    -fx-text-fill: #324b65;
+    -fx-font-weight: bold;
+}
