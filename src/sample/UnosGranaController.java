@@ -745,7 +745,7 @@ public class UnosGranaController {
                 rjesenjeStage.show();
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Greska");
+                alert.setTitle("Greška");
                 alert.setHeaderText(null);
                 alert.setContentText("Graf koji ste unijeli nije povezan, te nije moguće pronaći optimalno rješenje kineskog problema poštara!");
                 alert.showAndWait();
@@ -753,9 +753,9 @@ public class UnosGranaController {
         }
         else {
             Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Greska");
+            alert.setTitle("Greška");
             alert.setHeaderText(null);
-            alert.setContentText("Unesite trazene podatke ispravno!");
+            alert.setContentText("Unesite tražene podatke ispravno!");
             alert.showAndWait();
         }
     }
