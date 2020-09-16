@@ -1,5 +1,4 @@
 package sample;
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -12,18 +11,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-
-
 import java.io.IOException;
 
 import static javafx.scene.control.PopupControl.USE_COMPUTED_SIZE;
 
-public class Controller {
+public class PocetnaController {
     public TextField brojCvorovaField;
     public TextField brojGranaField;
     public ImageView slika;
     private boolean poljaIspravna = false;
-    public Controller() {
+    public PocetnaController() {
     }
     public static boolean isInt(String str) {
         try {
@@ -88,8 +85,8 @@ public class Controller {
 
     public void nastaviAction(ActionEvent actionEvent) throws IOException {
         if(poljaIspravna) {
-            UnosGranaController ctrl = new UnosGranaController(Integer.parseInt(brojCvorovaField.getText()), Integer.parseInt(brojGranaField.getText()));
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/unosGrana.fxml"));
+            GlavnaController ctrl = new GlavnaController(Integer.parseInt(brojCvorovaField.getText()), Integer.parseInt(brojGranaField.getText()));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/glavna.fxml"));
             loader.setController(ctrl);
             Parent root =  loader.load();
             Stage stage = new Stage();

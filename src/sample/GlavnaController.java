@@ -1,5 +1,4 @@
 package sample;
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -23,7 +22,7 @@ import javafx.util.Pair;
 import java.io.IOException;
 import java.util.*;
 import static javafx.scene.control.PopupControl.USE_COMPUTED_SIZE;
-public class UnosGranaController {
+public class GlavnaController {
     public VBox unosVbox;
     public Button pronadjiRjesenjeButton;
     public ImageView slika;
@@ -36,10 +35,12 @@ public class UnosGranaController {
     private Set<Cvor> posjeceniCvorovi = new HashSet<>();
     private Set<Cvor> sljedeciCvorovi = new HashSet<>();
     private Map<String, String> prethodnici = new HashMap<>();
-    private Map<Cvor, Integer> udaljenosti = new HashMap<>(); /*od zadanog pocetnog do cvora koji predstavlja key mape*/
-    private Map<Pair<Pair<Cvor,Cvor>, Integer>, ArrayList<Grana>> puteviIzmedjuCvorova = new HashMap<>(); /*kljuc - par kojeg cine par cvorova nepranog stepena i duzina puta izmedju njih, value - grane koje cine put*/
+    /* udaljenosti od zadanog pocetnog do cvora koji predstavlja key mape */
+    private Map<Cvor, Integer> udaljenosti = new HashMap<>();
+    /* kljuc - par kojeg cine par cvorova nepranog stepena i duzina puta izmedju njih, value - lista grana koje cine put */
+    private Map<Pair<Pair<Cvor,Cvor>, Integer>, ArrayList<Grana>> puteviIzmedjuCvorova = new HashMap<>();
     private Map<Pair<Cvor,Cvor>,ArrayList<Grana>> obrnuteGraneUPutu = new HashMap<>();
-    public UnosGranaController(int brojCvorova, int brojGrana) {
+    public GlavnaController(int brojCvorova, int brojGrana) {
         this.brojCvorova = brojCvorova;
         this.brojGrana= brojGrana;
         graf = new Graf();
@@ -49,12 +50,12 @@ public class UnosGranaController {
             graf.getCvorovi().add(new Cvor(graf.getCvorovi().size() + 1, String.valueOf(i)));
         }
         cvorovi = FXCollections.observableArrayList(list);
-
         for(int i = 0; i < brojCvorova; i++) {
             listaSusjedstva.add(new ArrayList<>());
         }
     }
     public void dodajPoljaZaUnosGrane() {
+        /* kreiranje polja za unos podataka za odgovarajuci broj grana */
         Image slikaPostar = new Image("/images/razmislja.png");
         slika.setImage(slikaPostar);
         slika.setFitHeight(377);
@@ -107,7 +108,7 @@ public class UnosGranaController {
         tezinaField.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observableValue, String oldValue, String newValue) {
-                if(Controller.isInt(newValue)) {
+                if(PocetnaController.isInt(newValue)) {
                     if(Integer.parseInt(newValue) > 0) {
                         tezinaField.getStyleClass().removeAll("neispravnoPolje");
                         tezinaField.getStyleClass().add("ispravnoPolje");
@@ -135,6 +136,7 @@ public class UnosGranaController {
             dodajPoljaZaUnosGrane();
         }
     }
+    /* Da li je graf povezan provjerava se DFS pretragom */
     private void DFS(int i, boolean[] posjecen) {
         /* Oznacava trenutni cvor kao posjecen */
         posjecen[i] = true;
@@ -144,7 +146,7 @@ public class UnosGranaController {
     }
     private int dajBrojPovezanihKomponentiGrafa() {
         int brojPovezanihKomponenti = 0;
-        /* sve cvorove oznacimo kao neposjecene */
+        /* sve cvorove oznaci kao neposjecene */
         boolean[] posjecen = new boolean[brojCvorova];
         for(int i = 0; i < brojCvorova; i++) posjecen[i] = false;
         for(int i = 0; i < brojCvorova; ++i) {
@@ -161,7 +163,6 @@ public class UnosGranaController {
         }
         return 0;
     }
-
     private boolean provjeriIspravnostUnesenihTezina() {
         boolean ispravno = true;
         ObservableList<Node> grane = unosVbox.getChildren();
@@ -176,7 +177,6 @@ public class UnosGranaController {
         }
         return ispravno;
     }
-
     private void izracunajStepeneCvorova() {
         for(Cvor cvor: graf.getCvorovi()) {
             int brojac = 0;
@@ -187,7 +187,6 @@ public class UnosGranaController {
             cvor.setStepen(brojac);
         }
     }
-
     private int dajBrojCvorovaNeparnogStepena() {
         int brojCvorovaNeparnogStepena = 0;
         for(Cvor cvor: graf.getCvorovi()) {
@@ -195,34 +194,30 @@ public class UnosGranaController {
         }
         return brojCvorovaNeparnogStepena;
     }
-
     private ArrayList<Cvor> dajSusjedneCvorove(Cvor cvor) {
         ArrayList<Cvor> susjedi = new ArrayList<>();
         for(Grana grana: graf.getGrane()) {
+            /* Neusmjereni graf */
             if(grana.getKrajnjiCvor().equals(cvor)) susjedi.add(grana.getPocetniCvor());
-            else if (grana.getPocetniCvor().equals(cvor)) susjedi.add(grana.getKrajnjiCvor()); //neusmjereni graf
+            else if (grana.getPocetniCvor().equals(cvor)) susjedi.add(grana.getKrajnjiCvor());
         }
-
         return susjedi;
     }
-
     private boolean postojiUdaljenost(Cvor cvor) {
-        //provjera da li već postoji put do cvora
+        /* Provjerava da li vec postoji put do cvora */
         for(Map.Entry<Cvor, Integer> entry: udaljenosti.entrySet()) {
             if(entry.getKey().getOznaka().equals(cvor.getOznaka())) return true;
         }
         return false;
     }
-
     private Cvor dajCvor(String oznaka) {
         for(Cvor cvor: graf.getCvorovi()) {
             if(cvor.getOznaka().equals(oznaka)) return cvor;
         }
         return null;
     }
-
     private ArrayList<Cvor> dajSusjedneNeposjeceneCvorove(Cvor cvor) {
-        //trazimo susjede zadanog cvora za koje nije pronađena
+        /* Trazimo susjede zadanog cvora za koje nije pronađena udaljenost */
         ArrayList<Cvor> susjedniCvorovi = new ArrayList<>();
         for (Grana grana : graf.getGrane()) {
             if (grana.getPocetniCvor().equals(cvor) && !posjecen(grana.getKrajnjiCvor())) {
@@ -233,57 +228,52 @@ public class UnosGranaController {
         }
         return susjedniCvorovi;
     }
-
     private void pronadjiNajkracePuteve(Cvor node) {
         ArrayList<Cvor> susjedni = dajSusjedneNeposjeceneCvorove(node);
         for (Cvor krajni : susjedni) {
-            if (getShortestDistance(krajni) > getShortestDistance(node) + tezinaGrane(node, krajni)) {
+            if (dajNajkracuUdaljenost(krajni) > dajNajkracuUdaljenost(node) + tezinaGrane(node, krajni)) {
                 if(postojiUdaljenost(krajni)) {
                     for(Map.Entry<Cvor, Integer> entry: udaljenosti.entrySet()) {
                         if(entry.getKey().getOznaka().equals(krajni.getOznaka())) {
-                            if(entry.getValue() > getShortestDistance(node) + tezinaGrane(node, krajni)) {
-                                entry.setValue(getShortestDistance(node) + tezinaGrane(node, krajni));
+                            if(entry.getValue() > dajNajkracuUdaljenost(node) + tezinaGrane(node, krajni)) {
+                                entry.setValue(dajNajkracuUdaljenost(node) + tezinaGrane(node, krajni));
                                 prethodnici.put(krajni.getOznaka(), node.getOznaka());
                             }
                         }
                     }
                 }
                 else {
-                    udaljenosti.put(krajni,  (getShortestDistance(node) + tezinaGrane(node, krajni)));
+                    udaljenosti.put(krajni,  (dajNajkracuUdaljenost(node) + tezinaGrane(node, krajni)));
                     prethodnici.put(krajni.getOznaka(), node.getOznaka());
                     sljedeciCvorovi.add(krajni);
                 }
             }
         }
     }
-
     private int tezinaGrane(Cvor pocetni, Cvor krajnji) {
         for (Grana grana: graf.getGrane()) {
             if (grana.getPocetniCvor().equals(pocetni) && grana.getKrajnjiCvor().equals(krajnji)) {
                 return grana.getTezinaGrane();
             }
-            //graf neusmjeren
             if (grana.getPocetniCvor().equals(krajnji) && grana.getKrajnjiCvor().equals(pocetni)) {
                 return grana.getTezinaGrane();
             }
         }
         return 0;
     }
-
-    private Cvor getMinimum(Set<Cvor> vertexes) {
+    private Cvor dajCvorNajkraceUdaljenosti(Set<Cvor> cvorovi) {
         Cvor minimum = null;
-        for (Cvor vertex : vertexes) {
+        for (Cvor cvor : cvorovi) {
             if (minimum == null) {
-                minimum = vertex;
+                minimum = cvor;
             } else {
-                if (getShortestDistance(vertex) < getShortestDistance(minimum)) {
-                    minimum = vertex;
+                if (dajNajkracuUdaljenost(cvor) < dajNajkracuUdaljenost(minimum)) {
+                    minimum = cvor;
                 }
             }
         }
         return minimum;
     }
-
     private boolean posjecen(Cvor cvor) {
         for(Cvor cvor1: posjeceniCvorovi) {
             if(cvor1.getOznaka().equals(cvor.getOznaka())){
@@ -292,9 +282,8 @@ public class UnosGranaController {
         }
         return false;
     }
-
-    private int getShortestDistance(Cvor cvor) {
-        //provjeravamo da li je već pronađen put od zadanog pocetnog cvora do cvor
+    private int dajNajkracuUdaljenost(Cvor cvor) {
+        /* provjeravamo da li je vec pronadjen put od zadanog pocetnog cvora do cvor */
         Integer d = udaljenosti.get(cvor);
         if (d == null) {
             return Integer.MAX_VALUE;
@@ -302,20 +291,19 @@ public class UnosGranaController {
             return d;
         }
     }
-
     public LinkedList<String> dajNajkraciPut(Cvor krajnji) {
-        LinkedList<String> path = new LinkedList<>();
-        String step = krajnji.getOznaka();
-        if (prethodnici.get(step) == null) {
+        LinkedList<String> put = new LinkedList<>();
+        String cvor = krajnji.getOznaka();
+        if (prethodnici.get(cvor) == null) {
             return null;
         }
-        path.add(step);
-        while (prethodnici.get(step) != null) {
-            step = prethodnici.get(step);
-            path.add(step);
+        put.add(cvor);
+        while (prethodnici.get(cvor) != null) {
+            cvor = prethodnici.get(cvor);
+            put.add(cvor);
         }
-        Collections.reverse(path);
-        return path;
+        Collections.reverse(put);
+        return put;
     }
 
     private void najkraciPutDijkstra(Cvor pocetni, Cvor kranji) {
@@ -323,12 +311,10 @@ public class UnosGranaController {
         posjeceniCvorovi = new HashSet<>();
         udaljenosti = new HashMap<>();
         prethodnici = new HashMap<>();
-        ArrayList<Integer> duzine = new ArrayList<>();
-        ArrayList<Cvor> susjedniPocetnog = dajSusjedneCvorove(pocetni);
         udaljenosti.put(pocetni, 0);
         sljedeciCvorovi.add(pocetni);
         while (sljedeciCvorovi.size() > 0) {
-            Cvor cvor = getMinimum(sljedeciCvorovi);
+            Cvor cvor = dajCvorNajkraceUdaljenosti(sljedeciCvorovi);
             posjeceniCvorovi.add(cvor);
             sljedeciCvorovi.remove(cvor);
             pronadjiNajkracePuteve(cvor);
@@ -340,7 +326,6 @@ public class UnosGranaController {
             Grana grana = dajGranu(pocetni.getOznaka(), kranji.getOznaka(), cvoroviNaPutu.get(i), cvoroviNaPutu.get(i + 1));
             graneOdPocetnogDoKrajnjeg.add(grana);
         }
-
         for(Map.Entry<Cvor, Integer> entry: udaljenosti.entrySet()) {
             if(entry.getKey().getOznaka().equals(kranji.getOznaka())) {
                 puteviIzmedjuCvorova.put(new Pair(pocetniKrajnjiPar,entry.getValue()), graneOdPocetnogDoKrajnjeg);
@@ -375,7 +360,6 @@ public class UnosGranaController {
         }
         return null;
     }
-
     private boolean daLiJeObrnutaGranaUPutu(Pair<Cvor,Cvor> par, Grana grana) {
         for(Map.Entry<Pair<Cvor,Cvor>, ArrayList<Grana>> entry: obrnuteGraneUPutu.entrySet()) {
             if(entry.getKey().getKey().getOznaka().equals(par.getKey().getOznaka()) && entry.getKey().getValue().getOznaka().equals(par.getValue().getOznaka())) {
@@ -389,13 +373,6 @@ public class UnosGranaController {
         }
         return false;
     }
-
-    private void vratiGraneNaPocetnoStanje() {
-        for(Grana grana: graf.getGrane()) {
-            grana.setsuprotSmjeru(false);
-        }
-    }
-
     private Grana dajGranu(Cvor cvor1, Cvor cvor2) {
         for (Grana grana: graf.getGrane()) {
             if(grana.getPocetniCvor().getOznaka().equals(cvor1) && grana.getKrajnjiCvor().getOznaka().equals(cvor2)) {
@@ -435,7 +412,7 @@ public class UnosGranaController {
         for(Pair<Cvor,Cvor> par: parovi) kopija.add(new Pair<>(par.getKey(), par.getValue()));
         return kopija;
     }
-    private boolean sadruiUparivanje(ArrayList<ArrayList<Pair<Cvor,Cvor>>> uparivanja, ArrayList<Pair<Cvor,Cvor>> novoUparivanje) {
+    private boolean sadrziUparivanje(ArrayList<ArrayList<Pair<Cvor,Cvor>>> uparivanja, ArrayList<Pair<Cvor,Cvor>> novoUparivanje) {
         for(ArrayList<Pair<Cvor,Cvor>> lista: uparivanja) {
             int brojac = 0;
             for(Pair<Cvor, Cvor> parListe: lista) {
@@ -451,14 +428,8 @@ public class UnosGranaController {
     }
     private ArrayList<Pair<Cvor,Cvor>> dajMogucaUparivanjaGrana(ArrayList<Pair<Cvor, Cvor>> paroviCvorova) {
         ArrayList<ArrayList<Pair<Cvor,Cvor>>> pronadjenaUparivanja = new ArrayList<>();
-        //System.out.println("parovi svorova neparnog stepena su:");
-        /*for(Pair<Cvor,Cvor> par: paroviCvorova) {
-            System.out.println(par.getKey().getOznaka() + "-" + par.getValue().getOznaka());
-        }*/
         int brojCvorovaNeparnogStepena = dajBrojCvorovaNeparnogStepena();
-        //System.out.println("Broj cvorova neparnog stepena " + brojCvorovaNeparnogStepena);
         int brojDupliciranihPuteva = brojCvorovaNeparnogStepena/2;
-        //System.out.println("Broj dupliciranih puteva " + brojDupliciranihPuteva);
         ArrayList<Pair<Cvor,Cvor>> uparivanjePutevi = new ArrayList<>();
         ArrayList<Pair<Cvor,Cvor>> pomocnaLista = new ArrayList<>();
         ArrayList<Pair<Cvor,Cvor>> parovi = dajKopiju(paroviCvorova);
@@ -466,7 +437,6 @@ public class UnosGranaController {
         for(int i = 1; i < brojCvorovaNeparnogStepena; i += 2) {
             brojMogucihUparivanja = brojMogucihUparivanja * i;
         }
-        //System.out.println("Broj mogucih uparivanja je " + brojMogucihUparivanja);
         int brojac = 0, brojacUparivanja = 0, sumaTezina = 0;
         ArrayList<Pair<Cvor, Cvor>> temp = paroviCvorova;
         int pocetniIndex = 0;
@@ -484,40 +454,22 @@ public class UnosGranaController {
                 ukloniIskoristeneCvorove(parovi, parovi.get(j));
                 j = -1;
                 if (brojac == brojDupliciranihPuteva) {
-                    //j = parovi.size();
                     boolean sadrzanoUparivanje = false;
                     if(uparivanjePutevi.size() == 0) {
                         /* prvo uparivanje */
                         pronadjenaUparivanja.add(dajKopiju(pomocnaLista));
-                      /*  for(Pair<Cvor,Cvor> pair: pomocnaLista) System.out.print(pair.getKey().getOznaka()+"-"+pair.getValue().getOznaka());
-                        System.out.println();*/
                         brojacUparivanja++;
                     }
                     if(uparivanjePutevi.size() != 0) {
-                        sadrzanoUparivanje = sadruiUparivanje(pronadjenaUparivanja, pomocnaLista);
+                        sadrzanoUparivanje = sadrziUparivanje(pronadjenaUparivanja, pomocnaLista);
                         if(!sadrzanoUparivanje)  {
                             /* pronadjeno bolje uparivanje */
                             pronadjenaUparivanja.add(dajKopiju(pomocnaLista));
-                           /* for(Pair<Cvor,Cvor> pair: pomocnaLista) System.out.print(pair.getKey().getOznaka()+"-"+pair.getValue().getOznaka());
-                            System.out.println();*/
                             brojacUparivanja++;
                             j = parovi.size();
 
                         }
                     }
-                    /*if(sadrzanoUparivanje) {
-                        pomocnaLista = new ArrayList<>();
-                        brojac = 0;
-                        parovi = dajKopiju(paroviCvorova);
-                        pomocnaLista.add(paroviCvorova.get(i));
-                        brojac++;
-                        ukloniIskoristeneCvorove(parovi, paroviCvorova.get(i));
-                        pocetniJ++;
-                        j = pocetniJ - 1;
-                    }*/
-                    /*else {
-                        j = parovi.size();
-                    }*/
                 }
             }
             if (brojac == brojDupliciranihPuteva) {
@@ -535,7 +487,8 @@ public class UnosGranaController {
                 break;
             }
             if(brojacUparivanja != brojMogucihUparivanja && i == paroviCvorova.size() - 1) {
-                /* ukoliko nisu pronadjena sva moguća uparivanja grana - vracamo se na pocetak i trazimo drugim redoslijedom */
+                /* ukoliko nisu pronadjena sva moguća uparivanja grana - vracamo se na pocetak
+                i trazimo drugim redoslijedom */
                 i = -1;
                 pocetniIndex++;
                 if(pocetniIndex == paroviCvorova.size()) break;
@@ -565,12 +518,12 @@ public class UnosGranaController {
         }
     }
     private void algoritamEdmondsJohnson() {
-        //kreiramo listu cvorova neparnog stepena
+        /* kreira listu cvorova neparnog stepena */
         ArrayList<Cvor> cvoroviNepranogStepena = new ArrayList<>();
         for (Cvor cvor: graf.getCvorovi()) {
             if(cvor.getStepen() % 2 == 1) cvoroviNepranogStepena.add(cvor);
         }
-        //kreiramo listu svih parova cvorova neparnog stepena
+        /* kreira listu svih parova cvorova neparnog stepena */
         ArrayList<Pair<Cvor, Cvor>> paroviCvorovaNeparnogStepena = new ArrayList<>();
         for(int i = 0; i < cvoroviNepranogStepena.size(); i++) {
             for(int j = i + 1; j < cvoroviNepranogStepena.size(); j++) {
@@ -579,7 +532,7 @@ public class UnosGranaController {
         }
         int duzinaPuta = 0;
 
-        //pronalazimo najkrace puteve izmedju cvorova koji cine jedan par
+        /* pronalazi najkrace puteve izmedju cvorova koji cine jedan par */
         for (Pair<Cvor,Cvor> par: paroviCvorovaNeparnogStepena) {
             najkraciPutDijkstra(par.getKey(),par.getValue());
         }
@@ -587,7 +540,7 @@ public class UnosGranaController {
         for(Map.Entry<Pair<Pair<Cvor, Cvor>, Integer>, ArrayList<Grana>> entry: puteviIzmedjuCvorova.entrySet()) {
             int brojGrana = entry.getValue().size();
             for(int i = 0; i < brojGrana; i++) {
-                //probjeravamo da li za razmatrani par cvorova trenutna grana u obrnutom smjeru
+                /* provjeravamo da li za razmatrani par cvorova trenutna grana u obrnutom smjeru */
                 if (daLiJeObrnutaGranaUPutu(entry.getKey().getKey(),entry.getValue().get(i))) {
                     if (i == brojGrana - 1) System.out.println(entry.getValue().get(i).getKrajnjiCvor().getOznaka() + "-" + entry.getValue().get(i).getPocetniCvor().getOznaka());
                     else System.out.print(entry.getValue().get(i).getKrajnjiCvor().getOznaka() + "-");
@@ -609,7 +562,8 @@ public class UnosGranaController {
         System.out.println("Grane u grafu:");
         for(Grana grana: graf.getGrane()) System.out.println(grana.toString());
     }
-    private Cvor dajDrugiCvorIzNeposjecene(Cvor cvor, ArrayList<Cvor> zatvoreniPut) {
+    /* pronalazi drugi cvor neposjecene grane */
+    private Cvor dajDrugiCvorIzNeposjecene(Cvor cvor) {
         for(Grana grana: graf.getGrane()) {
             if(grana.isSadrzanaUKonturi()) {
                 continue;
@@ -619,7 +573,6 @@ public class UnosGranaController {
                     grana.setSadrzanaUKonturi(true);
                     return grana.getKrajnjiCvor();
                 }
-                //neusmjeren graf
                 if(grana.getKrajnjiCvor().getOznaka().equals(cvor.getOznaka())) {
                     grana.setSadrzanaUKonturi(true);
                     return grana.getPocetniCvor();
@@ -658,11 +611,11 @@ public class UnosGranaController {
         while (brojGranaUKonturi != brojGrana) {
             ArrayList<Cvor> zatvoreniPut = new ArrayList<>();
             zatvoreniPut.add(trenutni);
-            trenutni = dajDrugiCvorIzNeposjecene(trenutni, zatvoreniPut);
+            trenutni = dajDrugiCvorIzNeposjecene(trenutni);
             zatvoreniPut.add(trenutni);
             brojGranaUKonturi++;
             while (!trenutni.getOznaka().equals(pocetni.getOznaka())) {
-                trenutni = dajDrugiCvorIzNeposjecene(trenutni, zatvoreniPut);
+                trenutni = dajDrugiCvorIzNeposjecene(trenutni);
                 zatvoreniPut.add(trenutni);
                 brojGranaUKonturi++;
             }
@@ -681,7 +634,6 @@ public class UnosGranaController {
     }
     public void pronadjiRjesenjeAction(ActionEvent actionEvent) throws IOException {
         if (provjeriIspravnostUnesenihTezina() && brojacOdabranihCvorova == brojGrana * 2) {
-
             ObservableList<Node> grane = unosVbox.getChildren();
             for (Node grana : grane) {
                 if (grana instanceof HBox) {
@@ -710,7 +662,6 @@ public class UnosGranaController {
                     }
                     graf.getGrane().add(granaGrafa);
                     listaSusjedstva.get(Integer.parseInt(granaGrafa.getPocetniCvor().getOznaka()) - 1).add(Integer.parseInt(granaGrafa.getKrajnjiCvor().getOznaka()) - 1);
-                    /* neusmjeren graf */
                     listaSusjedstva.get(Integer.parseInt(granaGrafa.getKrajnjiCvor().getOznaka()) - 1).add(Integer.parseInt(granaGrafa.getPocetniCvor().getOznaka()) - 1);
                 }
             }
@@ -719,12 +670,10 @@ public class UnosGranaController {
             if (brojKomponenti == 1) {
                 izracunajStepeneCvorova();
                 int brojCvorovaNeparnogStepena = dajBrojCvorovaNeparnogStepena();
+                System.out.println("Broj cvorova neparnog stepena " + brojCvorovaNeparnogStepena);
                 if (brojCvorovaNeparnogStepena != 0) {
                     algoritamEdmondsJohnson();
                 }
-                /*else {
-
-                }*/
                 /* Eulerova kontura */
                 ArrayList<Cvor> postarovPut = nadjiEulerovuKonturu();
                 /* Ispis puta */
@@ -761,7 +710,7 @@ public class UnosGranaController {
     }
     public void pocetakAction(ActionEvent actionEvent) throws IOException {
         Stage stage = (Stage) unosVbox.getScene().getWindow();
-        Controller ctrl = new Controller();
+        PocetnaController ctrl = new PocetnaController();
         FXMLLoader loader = new  FXMLLoader(getClass().getResource("/fxml/pocetna.fxml"));
         loader.setController(ctrl);
         Parent root = loader.load();

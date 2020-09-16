@@ -1,5 +1,4 @@
 package sample;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,7 +10,6 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -44,7 +42,7 @@ public class RjesenjeContoller {
 
     public void pocetakAction(ActionEvent actionEvent) throws IOException {
         Stage stage = (Stage) pocetakButton.getScene().getWindow();
-        Controller ctrl = new Controller();
+        PocetnaController ctrl = new PocetnaController();
         FXMLLoader loader = new  FXMLLoader(getClass().getResource("/fxml/pocetna.fxml"));
         loader.setController(ctrl);
         Parent root = loader.load();
