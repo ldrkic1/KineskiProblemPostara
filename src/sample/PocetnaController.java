@@ -84,7 +84,7 @@ public class PocetnaController {
     }
 
     public void nastaviAction(ActionEvent actionEvent) throws IOException {
-        if(poljaIspravna) {
+        if(brojCvorovaField.getStyleClass().contains("ispravnoPolje") && brojGranaField.getStyleClass().contains("ispravnoPolje")) {
             GlavnaController ctrl = new GlavnaController(Integer.parseInt(brojCvorovaField.getText()), Integer.parseInt(brojGranaField.getText()));
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/glavna.fxml"));
             loader.setController(ctrl);
@@ -101,10 +101,10 @@ public class PocetnaController {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Neispravan unos");
             alert.setHeaderText(null);
-            if (brojGranaField.getStyleClass().contains("neispravnoPolje") && brojCvorovaField.getStyleClass().contains("poljeIspravno")) {
+            if (brojGranaField.getStyleClass().contains("neispravnoPolje") && brojCvorovaField.getStyleClass().contains("ispravnoPolje")) {
                 alert.setContentText("Unesite ispravan broj grana!");
             }
-            else if (brojGranaField.getStyleClass().contains("poljeIspravno") && brojCvorovaField.getStyleClass().contains("neispravnoPolje")) {
+            else if (brojGranaField.getStyleClass().contains("ispravnoPolje") && brojCvorovaField.getStyleClass().contains("neispravnoPolje")) {
                 alert.setContentText("Unesite ispravan broj čvorova!");
             }
             else {
